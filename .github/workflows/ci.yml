@@ -1,0 +1,30 @@
+name: Bot CI/CD
+
+# Запускать сценарий при каждом пуше в ветку main (или master)
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest # Поднимаем виртуальную машину на Linux
+
+    steps:
+    - name: Клонирование репозитория
+      uses: actions/checkout@v3
+
+    - name: Установка языка Go 1.22
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.22'
+
+    - name: Загрузка зависимостей
+      run: go mod download
+
+    - name: Проверка компиляции кода
+      run: go build -v ./cmd/bot/main.go
+
+    - name: Тестовая сборка Docker-образа
+      run: docker build -t asakabot:test .

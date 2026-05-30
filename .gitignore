@@ -16,3 +16,5 @@ rmqdata/
 # Временные файлы редакторов (VSCode, GoLand)
 .idea/
 .vscode/
+
+*.py

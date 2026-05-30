@@ -19,6 +19,12 @@ func ConnectDB(dbURL string) *sql.DB {
 		err = db.Ping()
 		if err == nil {
 			log.Println("Успешное подключение к PostgreSQL!")
+			
+			// Оптимизация: настраиваем пул соединений
+			db.SetMaxOpenConns(25)
+			db.SetMaxIdleConns(25)
+			db.SetConnMaxLifetime(5 * time.Minute)
+			
 			return db
 		}
 		log.Printf("Попытка %d: База данных еще не готова (%v). Ждем 3 секунды...", i, err)
