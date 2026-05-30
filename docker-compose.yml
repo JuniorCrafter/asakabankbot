@@ -1,0 +1,44 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: asakabankbot_db
+    environment:
+      POSTGRES_USER: junior
+      POSTGRES_PASSWORD: junicraft2512
+      POSTGRES_DB: asakabankbot
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  rabbitmq:
+    image: rabbitmq:3.12-management-alpine
+    container_name: asakabankbot_rmq
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: adminpassword
+    ports:
+      - "5672:5672"   # Порт для подключения Go-приложения
+      - "15672:15672" # Порт для веб-интерфейса RabbitMQ
+    volumes:
+      - rmqdata:/var/lib/rabbitmq
+    restart: unless-stopped
+
+  bot:
+    build: .
+    container_name: asakabankbot_app
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      # Внутри Docker обращаемся к сервисам по их именам, а не через localhost
+      - DB_URL=postgres://junior:junicraft2512@postgres:5432/asakabankbot?sslmode=disable
+      - RABBITMQ_URL=amqp://admin:adminpassword@rabbitmq:5672/
+    depends_on:
+      - postgres
+      - rabbitmq
+
+volumes:
+  pgdata:
+  rmqdata:
